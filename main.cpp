@@ -3,6 +3,7 @@
 #include <list>
 #include<unordered_map>
 #include<set>
+#include<queue>
 using namespace std;
 
 struct Node
@@ -129,8 +130,38 @@ int main()
         }
         case 3:
         {
+            int opt1;
             cout<<"1. Want to perform a transaction"<<endl;
-        
+            cout<<"2. Exit"<<endl;
+            cout<<"Enter option : ";
+            cin>>opt1;
+            switch(opt1)
+            {
+                case 1:
+                {
+                    
+                    int opt2;
+                    cout<<"1. Cash Deposit "<<endl;
+                    cout<<"2. Cash Withdrawl "<<endl;
+                    cout<<"3. Fund Transfer "<<endl;
+                    cout<<"4. Exit"<<endl;
+                    cout<<"Enter option : ";
+                    cin>>opt2;
+                    switch(opt2)
+                    {
+                        case 1:
+                        {
+                            cout<<"";
+                        }
+                    }
+                    break;
+                }
+                case 2:
+                {
+                    cout<<"Exitng"<<endl;
+                    break;
+                }
+            }
         }
         case 4:
         {
