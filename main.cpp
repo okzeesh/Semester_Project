@@ -7,50 +7,20 @@
 using namespace std;
 
 
-class Transactions
+struct Transactions
 {
 public:
-    long dep_amount, withdraw_amount, transfer_amount, remaining, receiver_acc_num;
-    string deposit, withdraw, transfer;
+    string type;
+    int amount;
 
-    Transactions()
+    Transactions() : type(""), amount(0) {}
+
+    Transactions(string type, int amount)
     {
-      
+        this->type = type;
+        this->amount = amount;
     }
 
-void Transaction(long accNum)
-{
-    int opt2;
-                    cout<<"1. Cash Deposit "<<endl;
-                    cout<<"2. Cash Withdrawl "<<endl;
-                    cout<<"3. Fund Transfer "<<endl;
-                    cout<<"4. Exit"<<endl;
-                    cout<<"Enter option : ";
-                    cin>>opt2;
-                    switch(opt2)
-                    {
-                        case 1:
-
-            
-                  break;
-
-                        break;
-
-                        case 2 :
-                            cout<<"";
-                        break;
-
-                        case 3 :
-                            cout<<"";
-                        break;
-
-                        default :
-                            cout<<"";
-                        break;
-                    }
-                   
-
-}
                 
 };
 class Node
@@ -80,8 +50,122 @@ public:
         this->amount = amount;
         this->pin = pin;
     }
+
+    void Transaction(set<Node>& BST)
+    {
+    int opt2;
+                    cout<<"1. Cash Deposit "<<endl;
+                    cout<<"2. Cash Withdrawl "<<endl;
+                    cout<<"3. Fund Transfer "<<endl;
+                    cout<<"4. Exit"<<endl;
+                    cout<<"Enter option : ";
+                    cin>>opt2;
+
+                    Transactions temp;
+
+                    switch(opt2)
+                    {
+                        case 1:
+                        // Cash Deposit
+                        cout << "Enter the amount you want to deposit: ";
+                        int deposit;
+                        cin >> deposit;
+                        amount += deposit;
+                        cout << "Amount $"<<deposit<<" deposited Succssfully!!\nYour current balance is: $" << amount << endl;
+                        temp = Transactions("DEPOSIT",deposit);
+                        T1.push(temp);
+                        break;
+
+                        case 2 : // Cash Withdrawal
+                        cout << "Enter the amount you want to withdraw: ";
+                        int withdraw;
+                        cin >> withdraw;
+                        if (amount >= withdraw)
+                        {
+                        amount -= withdraw;
+                        cout << "Amount $"<<withdraw<<" Withdrawed Succssfully!!\nYour current balance is: $" << amount << endl;
+                        temp = Transactions("WITHDRAW",withdraw);
+                        T1.push(temp);
+                            }
+                         else
+                        {
+                         cout << "Insufficient Balance for the withdrawal!" << endl;
+                            return;
+                                 }
+                        
+                        break;
+
+                        case 3 : // Fund Transfer
+                        
+                        
+                        break;
+
+                        default :
+                            cout<<"";
+                        break;
+                    }
+                   
+
+}
 };
 
+void Transfer(Node sender)
+{
+    cout << "receiver's Account number : ";
+    long acc_NUM;
+    cin >> acc_NUM;
+
+     int attempts = 3;
+
+    do{
+        for (auto& itr : BST)
+        {
+            if (itr.acc_num == acc_number)
+            {
+
+                cout << "Enter the amount you want to transfer: ";
+                int trans;
+                cin >> trans;
+                if (amount >= trans)
+                {
+                    amount -= trans;
+                cout << "Amount $"<<trans<<" Transfered Succssfully!!\nYour current balance is: $" << amount << endl;
+                temp = Transactions("Transfer",trans);
+                T1.push(temp);
+                    accountNode->amount -= transactionRecord.transfer_amount;
+                    accountHash[acc_num]->amount = accountNode->amount;
+                    accountHash[transactionRecord.receiver_acc_num]->amount += transactionRecord.transfer_amount;
+                }
+                else
+                {
+                    cout << "Insufficient Balance for the transfer!" << endl;
+                    return;
+                }
+    
+            }
+        }
+
+        cout << "Account does not exist." << endl;
+        attempts--;
+        cout << "Attempts left: " << attempts << endl;
+
+        if (attempts == 0) {
+            cout << "Too many incorrect attempts. Exiting." << endl;
+            return;
+        }
+        cout << "Enter Account Number Again: ";
+        cin >> acc_NUM;
+
+    } while (attempts>=1);
+
+
+    
+
+
+
+
+
+}
 
 
 class BankingSystem
@@ -113,88 +197,8 @@ public:
         }
     }
 
-    // Function to perform transactions and update transaction history
-    void performTransaction(long acc_num, int transactionType)
-    {
-        Transactions transactionRecord;
-        switch (transactionType)
-        {
-        case 1: // Fund Transfer
-            cout << "Enter the account number of the receiver: ";
-            cin >> transactionRecord.receiver_acc_num;
-            cout << "Enter the amount you want to transfer: ";
-            cin >> transactionRecord.transfer_amount;
-            break;
-        case 2: // Cash Deposit
-            cout << "Enter the amount you want to deposit: ";
-            cin >> transactionRecord.dep_amount;
-            break;
-        case 3: // Cash Withdrawal
-            cout << "Enter the amount you want to withdraw: ";
-            cin >> transactionRecord.withdraw_amount;
-            break;
-        }
-
-        Node* accountNode = accountHash[acc_num];
-        transactionRecord.remaining = accountNode->amount;
-
-        // Update account balance
-        switch (transactionType)
-        {
-        case 1:
-            if (accountNode->amount >= transactionRecord.transfer_amount)
-            {
-                accountNode->amount -= transactionRecord.transfer_amount;
-                accountHash[acc_num]->amount = accountNode->amount;
-                accountHash[transactionRecord.receiver_acc_num]->amount += transactionRecord.transfer_amount;
-            }
-            else
-            {
-                cout << "Insufficient funds for the transfer!" << endl;
-                return;
-            }
-            break;
-        case 2:
-            accountNode->amount += transactionRecord.dep_amount;
-            accountHash[acc_num]->amount = accountNode->amount;
-            break;
-        case 3:
-            if (accountNode->amount >= transactionRecord.withdraw_amount)
-            {
-                accountNode->amount -= transactionRecord.withdraw_amount;
-                accountHash[acc_num]->amount = accountNode->amount;
-            }
-            else
-            {
-                cout << "Insufficient funds for the withdrawal!" << endl;
-                return;
-            }
-            break;
-        }
-
-        // Update transaction history
-        transactionHistory.push(transactionRecord);
-        cout << "Transaction completed successfully!" << endl;
-    }
-
     // Function to display transaction history
-    void displayTransactionHistory()
-    {
-        cout << "Your transaction details are: " << endl;
-        while (!transactionHistory.empty())
-        {
-            Transactions record = transactionHistory.front();
-            transactionHistory.pop();
-            cout << "Transfered Record : " << endl;
-            cout << "Receiver account No. : " << record.receiver_acc_num << endl;
-            cout << "Amount Transferred : " << record.transfer_amount << endl;
-            cout << "Deposit Record : " << endl;
-            cout << "Deposited amount : " << record.dep_amount << endl;
-            cout << "Withdraw Record : " << endl;
-            cout << "Withdraw amount : " << record.withdraw_amount << endl;
-            cout << "Your current Balance is : " << record.remaining << endl;
-        }
-    }
+  
 
 };
 
@@ -337,38 +341,15 @@ int main()
             {
                 case 1:
                 {
+                    for (auto& itr : BST)
+                    {
+                        if (itr.acc_num == acc_number)
+                        {
+                           itr.Transaction();
+                        }
+                    }
 
-            //         int opt2;
-            //         cout<<"1. Cash Deposit "<<endl;
-            //         cout<<"2. Cash Withdrawl "<<endl;
-            //         cout<<"3. Fund Transfer "<<endl;
-            //         cout<<"4. Exit"<<endl;
-            //         cout<<"Enter option : ";
-            //         cin>>opt2;
-            //         switch(opt2)
-            //         {
-            //             case 1:
-
-            // int transactionType;
-            // cin >> transactionType;
-            // bankingSystem.performTransaction(acc_num, transactionType);
-            // break;
-
-            //             break;
-
-            //             case 2 :
-            //                 cout<<"";
-            //             break;
-
-            //             case 3 :
-            //                 cout<<"";
-            //             break;
-
-            //             default :
-            //                 cout<<"";
-            //             break;
-            //         }
-            //         break;
+                    break;
                  }
                 case 2:
 
