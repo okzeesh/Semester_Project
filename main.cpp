@@ -1,13 +1,12 @@
 #include <iostream>
-#include <string>
 #include <list>
 #include <unordered_map>
-#include<set>
 #include <queue>
+#include <set>
+#include<string>
 using namespace std;
 
-
-struct Transactions
+class Transactions
 {
 public:
     string type;
@@ -20,9 +19,8 @@ public:
         this->type = type;
         this->amount = amount;
     }
-
-                
 };
+
 class Node
 {
 public:
@@ -32,16 +30,11 @@ public:
     long long ph_num;
     long amount;
     int pin;
+    queue<Transactions> transactionHistory;
 
-    queue < Transactions > T1;
+    Node() : acc_num(0), name(""), address(""), ph_num(0), amount(0), pin(0) {}
 
-    Node() 
-       :  acc_num(0), name(""), address(""), ph_num(0), amount(0), pin(0) {};
-
-    // Parameterized constructor
-
-    Node(long acc_num, string name, string address,
-    long long ph_num, long amount, int pin) 
+    Node(long acc_num, string name, string address, long long ph_num, long amount, int pin)
     {
         this->acc_num = acc_num;
         this->name = name;
@@ -51,142 +44,133 @@ public:
         this->pin = pin;
     }
 
-    void Transaction(set<Node>& BST)
+    long getBalance() const
     {
-    int opt2;
-                    cout<<"1. Cash Deposit "<<endl;
-                    cout<<"2. Cash Withdrawl "<<endl;
-                    cout<<"3. Fund Transfer "<<endl;
-                    cout<<"4. Exit"<<endl;
-                    cout<<"Enter option : ";
-                    cin>>opt2;
+        return amount;
+    }
 
-                    Transactions temp;
+    void performTransaction(unordered_map<long, Node *> &accountHash, set<long> &bst)
+    {
+        int opt2;
+        cout << "1. Cash Deposit " << endl;
+        cout << "2. Cash Withdrawal " << endl;
+        cout << "3. Fund Transfer " << endl;
+        cout << "4. Exit" << endl;
+        cout << "Enter option : ";
+        cin >> opt2;
 
-                    switch(opt2)
-                    {
-                        case 1:
-                        // Cash Deposit
-                        cout << "Enter the amount you want to deposit: ";
-                        int deposit;
-                        cin >> deposit;
-                        amount += deposit;
-                        cout << "Amount $"<<deposit<<" deposited Succssfully!!\nYour current balance is: $" << amount << endl;
-                        temp = Transactions("DEPOSIT",deposit);
-                        T1.push(temp);
-                        break;
+        Transactions temp;
 
-                        case 2 : // Cash Withdrawal
-                        cout << "Enter the amount you want to withdraw: ";
-                        int withdraw;
-                        cin >> withdraw;
-                        if (amount >= withdraw)
-                        {
-                        amount -= withdraw;
-                        cout << "Amount $"<<withdraw<<" Withdrawed Succssfully!!\nYour current balance is: $" << amount << endl;
-                        temp = Transactions("WITHDRAW",withdraw);
-                        T1.push(temp);
-                            }
-                         else
-                        {
-                         cout << "Insufficient Balance for the withdrawal!" << endl;
-                            return;
-                                 }
-                        
-                        break;
-
-                        case 3 : // Fund Transfer
-                        
-                        
-                        break;
-
-                        default :
-                            cout<<"";
-                        break;
-                    }
-                   
-
-}
-};
-
-void Transfer(Node sender)
-{
-    cout << "receiver's Account number : ";
-    long acc_NUM;
-    cin >> acc_NUM;
-
-     int attempts = 3;
-
-    do{
-        for (auto& itr : BST)
+        switch (opt2)
         {
-            if (itr.acc_num == acc_number)
+        case 1:
+            // Cash Deposit
+            cout << "Enter the amount you want to deposit: ";
+            int deposit;
+            cin >> deposit;
+            amount += deposit;
+            cout << "Amount $" << deposit << " deposited successfully!\nYour current balance is: $" << amount << endl;
+            temp = Transactions("DEPOSIT", deposit);
+            transactionHistory.push(temp);
+            break;
+
+        case 2:
+            // Cash Withdrawal
+            cout << "Enter the amount you want to withdraw: ";
+            int withdraw;
+            cin >> withdraw;
+            if (amount >= withdraw)
             {
-
-                cout << "Enter the amount you want to transfer: ";
-                int trans;
-                cin >> trans;
-                if (amount >= trans)
-                {
-                    amount -= trans;
-                cout << "Amount $"<<trans<<" Transfered Succssfully!!\nYour current balance is: $" << amount << endl;
-                temp = Transactions("Transfer",trans);
-                T1.push(temp);
-                    accountNode->amount -= transactionRecord.transfer_amount;
-                    accountHash[acc_num]->amount = accountNode->amount;
-                    accountHash[transactionRecord.receiver_acc_num]->amount += transactionRecord.transfer_amount;
-                }
-                else
-                {
-                    cout << "Insufficient Balance for the transfer!" << endl;
-                    return;
-                }
-    
+                amount -= withdraw;
+                cout << "Amount $" << withdraw << " withdrawn successfully!\nYour current balance is: $" << amount << endl;
+                temp = Transactions("WITHDRAW", withdraw);
+                transactionHistory.push(temp);
             }
+            else
+            {
+                cout << "Insufficient Balance for the withdrawal!" << endl;
+                return;
+            }
+            break;
+
+        case 3:
+        {
+            // Fund Transfer
+            cout << "Enter the account number of the receiver: ";
+            long receiver_acc_num;
+            cin >> receiver_acc_num;
+
+            // Check if the receiver account exists
+            if (bst.find(receiver_acc_num) == bst.end())
+            {
+                cout << "Receiver account not found!" << endl;
+                return;
+            }
+
+            // Check if the receiver account is the same as the sender account
+            if (receiver_acc_num == acc_num)
+            {
+                cout << "Cannot transfer funds to the same account!" << endl;
+                return;
+            }
+
+            // Check if the sender has sufficient balance for the transfer
+            cout << "Enter the amount you want to transfer: ";
+            int transfer_amount;
+            cin >> transfer_amount;
+
+            if (transfer_amount > 0 && amount >= transfer_amount) // Ensure transfer_amount is positive
+            {
+                amount -= transfer_amount;
+                cout << "Amount $" << transfer_amount << " transferred successfully!\nYour current balance is: $" << amount << endl;
+                temp = Transactions("TRANSFER", transfer_amount);
+                transactionHistory.push(temp);
+
+                // Update the receiver's account balance
+                Node *receiverNode = accountHash[receiver_acc_num];
+                receiverNode->amount += transfer_amount;
+
+                cout << "Funds received from account number " << acc_num << ". \nReceiver's new balance is: $" << receiverNode->amount << endl;
+            }
+            else
+            {
+                cout << "Invalid amount or insufficient balance for the transfer!" << endl;
+                return;
+            }
+            break;
         }
 
-        cout << "Account does not exist." << endl;
-        attempts--;
-        cout << "Attempts left: " << attempts << endl;
-
-        if (attempts == 0) {
-            cout << "Too many incorrect attempts. Exiting." << endl;
-            return;
+        default:
+            cout << "Invalid option" << endl;
+            break;
         }
-        cout << "Enter Account Number Again: ";
-        cin >> acc_NUM;
-
-    } while (attempts>=1);
-
-
-    
-
-
-
-
-
-}
-
+    }
+};
 
 class BankingSystem
 {
 private:
     list<Node> accountList;
-    unordered_map<long, Node*> accountHash;
-    queue<Transactions> transactionHistory;
-    Node* rootBST;
+    unordered_map<long, Node *> accountHash;
+    set<long> bst;
 
 public:
-    BankingSystem()
+    // Function to add a new customer and open a new account
+    void addCustomer(long acc_num, string name, string address, long long ph_num, long amount, int pin)
     {
-        rootBST = nullptr;
+        Node *newNode = new Node(acc_num, name, address, ph_num, amount, pin);
+        accountList.push_front(*newNode);
+        accountHash[acc_num] = newNode;
+        bst.insert(acc_num);
+        cout << "\nCongratulations!!!\nYour Account has been created! \n"
+             << endl;
     }
 
     // Function to display account holder details
     void displayCustomers()
     {
         int i = 1;
-        for (const auto& itr : accountList)
+        for (const auto &itr : accountList)
         {
             cout << "Client " << i << " Details" << endl;
             cout << "Account Number -> " << itr.acc_num << endl;
@@ -197,71 +181,64 @@ public:
         }
     }
 
+    // Function to perform transactions and update transaction history
+    void performTransaction(long acc_num)
+    {
+        Node *accountNode = accountHash[acc_num];
+        accountNode->performTransaction(accountHash, bst);
+    }
+
     // Function to display transaction history
-  
-
-};
-
-bool findAccountHolder(long acc_number, set<Node>& BST) {
-    int attempts = 3;
-
-    do{
-
-
-        for (auto& itr : BST)
+    void displayTransactionHistory(long acc_num)
+    {
+        Node *accountNode = accountHash[acc_num];
+        cout << "Transaction history for Account Number " << acc_num << " is:" << endl;
+        while (!accountNode->transactionHistory.empty())
         {
-            if (itr.acc_num == acc_number)
-            {
-                attempts = 3;
-                int ppin;
-                do {
-                    cout << "Enter PIN: ";
-                    cin >> ppin;
-
-                    if (itr.pin == ppin) {
-                        return true;
-                    } else {
-                        cout << "Incorrect PIN. ";
-                        attempts--;
-                        cout << "Attempts left: " << attempts << endl;
-
-                        if (attempts == 0) {
-                            cout << "Too many incorrect attempts. Exiting." << endl;
-                            return false;
-                        }
-                    }
-                } while (true);
-            }
+            Transactions record = accountNode->transactionHistory.front();
+            accountNode->transactionHistory.pop();
+            cout << "Transaction Type: " << record.type << ", Amount: $" << record.amount << endl;
         }
+    }
 
-        cout << "Account does not exist." << endl;
-        attempts--;
-        cout << "Attempts left: " << attempts << endl;
-
-        if (attempts == 0) {
-            cout << "Too many incorrect attempts. Exiting." << endl;
-            return false;
+    // Function to display account holder details with balance
+    void displayCustomersWithBalance()
+    {
+        int i = 1;
+        for (const auto &itr : accountList)
+        {
+            cout << "Client " << i << " Details" << endl;
+            cout << "Account Number -> " << itr.acc_num << endl;
+            cout << "Account Holder's Name -> " << itr.name << endl;
+            cout << "Account Holder's Address -> " << itr.address << endl;
+            cout << "Account Holder's Contact Information -> " << itr.ph_num << endl;
+            cout << "Account Balance -> $" << itr.getBalance() << endl; // Display the balance
+            i++;
         }
-        cout << "Enter Account Number Again: ";
-        cin >> acc_number;
+    }
 
-    } while (true);
+    // Function to verify account details using Binary Search Tree (BST)
+    bool verifyAccount(long acc_num)
+    {
+        return bst.find(acc_num) != bst.end();
+    }
 
-    return false;
-}
-
+    // Additional method to get the account node based on the account number
+    Node *getAccountNode(long acc_num)
+    {
+        return accountHash[acc_num];
+    }
+};
 
 int main()
 {
     BankingSystem bankingSystem;
-    list<Node> AMS;
-    set<Node> BST;
 
-    int pin,pin1;
     long acc_num;
     string name, address;
     long long ph_num;
     long amount;
+    int pin;
 
     int opt;
 
@@ -271,14 +248,13 @@ int main()
         cout << "==== MENU ====" << endl;
         cout << "1. Open New Account" << endl;
         cout << "2. Show Account Holder Details" << endl;
-        cout<<"3. Already have an account "<<endl;
+        cout << "3. Perform Transaction" << endl;
         cout << "4. Display Transaction History" << endl;
-        cout << "5. Verify Account" << endl;
-        cout << "6. Exit" << endl;
+        cout << "5. Show Current Balance" << endl;
+        cout << "6. Verify Account" << endl;
+        cout << "7. Exit" << endl;
         cout << "Enter choice : ";
         cin >> opt;
-
-        Node temp;
 
         switch (opt)
         {
@@ -292,30 +268,12 @@ int main()
             getline(cin, address);
             cout << "Enter your phone number: ";
             cin >> ph_num;
-
-            cout << "Enter Pin : ";
-            cin >> pin;
-            cout << "Re-Enter Pin : ";
-            cin >> pin1;
-
-            while (pin!=pin1)
-            {
-                cout << "Pin does not match" << endl;
-                cout << "Enter Pin : ";
-                cin >> pin;
-                cout << "Re-Enter Pin : ";
-                cin >> pin1;
-            }
-
             cout << "Enter initial amount: ";
             cin >> amount;
+            cout << "Enter Pin : ";
+            cin >> pin;
 
-           temp= Node(acc_num, name, address, ph_num,amount,pin);
-            AMS.push_front(temp);
-            BST.insert(temp);
-            cout << "\nCongratulations!!!\nYour Account has been created! \n"
-                 << endl;
-
+            bankingSystem.addCustomer(acc_num, name, address, ph_num, amount, pin);
             break;
 
         case 2:
@@ -323,55 +281,46 @@ int main()
             break;
 
         case 3:
-        {
-
-            long acc_number;
-
-            cout << "Enter Account Number : ";
-            cin >> acc_number;
-
-        if (findAccountHolder(acc_number,BST))
-        {
-            int opt1;
-            cout<<"1. Want to perform a transaction"<<endl;
-            cout<<"2. Exit"<<endl;
-            cout<<"Enter option : ";
-            cin>>opt1;
-            switch(opt1)
-            {
-                case 1:
-                {
-                    for (auto& itr : BST)
-                    {
-                        if (itr.acc_num == acc_number)
-                        {
-                           itr.Transaction();
-                        }
-                    }
-
-                    break;
-                 }
-                case 2:
-
-                    cout<<"Exitng"<<endl;
-                    break;
-
-                default :
-                            cout<<"";
-                        break;
-            }
-        }
-
-
-        break;
-        }
+            cout << "Enter your account number: ";
+            cin >> acc_num;
+            bankingSystem.performTransaction(acc_num);
+            break;
 
         case 4:
-            bankingSystem.displayTransactionHistory();
+            cout << "Enter your account number: ";
+            cin >> acc_num;
+            bankingSystem.displayTransactionHistory(acc_num);
             break;
 
         case 5:
-           
+            // Show Current Balance
+            cout << "Enter your account number: ";
+            cin >> acc_num;
+            if (bankingSystem.verifyAccount(acc_num))
+            {
+                Node *accountNode = bankingSystem.getAccountNode(acc_num);
+                cout << "Your current balance is: $" << accountNode->getBalance() << endl;
+            }
+            else
+            {
+                cout << "Account not found!" << endl;
+            }
+            break;
+
+        case 6:
+            cout << "Enter account number to verify: ";
+            cin >> acc_num;
+            if (bankingSystem.verifyAccount(acc_num))
+            {
+                cout << "Account verified successfully!" << endl;
+            }
+            else
+            {
+                cout << "Account not found!" << endl;
+            }
+            break;
+
+        case 7:
             cout << "Exiting..." << endl;
             break;
 
@@ -380,7 +329,7 @@ int main()
             break;
         }
 
-    } while (opt != 6);
+    } while (opt != 7);
 
     return 0;
 }
