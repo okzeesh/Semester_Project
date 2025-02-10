@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <queue>
 #include <set>
+#include<string>
 using namespace std;
 
 class Transactions
