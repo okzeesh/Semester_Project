@@ -1,4 +1,3 @@
-Here’s a polished and professional `README.md` based on the content of your **Simulated Banking System** project:
 
 ---
 
@@ -123,4 +122,3 @@ This project was developed as part of the CS-221 course to practically demonstra
 
 ---
 
-Would you like this saved as a downloadable `README.md` file?
